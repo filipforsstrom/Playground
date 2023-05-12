@@ -2,7 +2,7 @@ using Playground.Api.Models;
 
 namespace Playground.Api.Repository;
 
-public class TodoRepository : ITodoRepository
+public class TodoRepositoryMongoDb : ITodoRepository
 {
     public Task<Todo> CreateTodo(Todo todo)
     {
