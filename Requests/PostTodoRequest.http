@@ -1,0 +1,7 @@
+POST http://localhost:5029/todoitems
+Content-Type: application/json
+
+{
+  "name": "Walk the dog",
+  "isComplete": false
+}
