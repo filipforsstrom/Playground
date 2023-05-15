@@ -1,31 +1,45 @@
+using MongoDB.Driver;
 using Playground.Api.Models;
 
 namespace Playground.Api.Repository;
 
 public class TodoRepositoryMongoDb : ITodoRepository
 {
-    public Task<Todo> CreateTodo(Todo todo)
+    private readonly IMongoCollection<Todo> _todoCollection;
+
+    public TodoRepositoryMongoDb(IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        _todoCollection = database.GetCollection<Todo>("todos");
     }
 
-    public Task<bool> DeleteTodoById(int id)
+    public async Task<List<Todo>> GetAllTodos()
     {
-        throw new NotImplementedException();
+        return await _todoCollection.Find(_ => true).ToListAsync();
     }
 
-    public Task<List<Todo>> GetAllTodos()
+    public async Task<Todo> GetTodoById(int id)
     {
-        throw new NotImplementedException();
+        var filter = Builders<Todo>.Filter.Eq(todo => todo.Id, id);
+        return await _todoCollection.Find(filter).FirstOrDefaultAsync();
     }
 
-    public Task<Todo> GetTodoById(int id)
+    public async Task<Todo> CreateTodo(Todo todo)
     {
-        throw new NotImplementedException();
+        await _todoCollection.InsertOneAsync(todo);
+        return todo;
     }
 
-    public Task<Todo> UpdateTodo(Todo todo)
+    public async Task<Todo> UpdateTodo(Todo todo)
     {
-        throw new NotImplementedException();
+        var filter = Builders<Todo>.Filter.Eq(existingTodo => existingTodo.Id, todo.Id);
+        await _todoCollection.ReplaceOneAsync(filter, todo);
+        return todo;
+    }
+
+    public async Task<bool> DeleteTodoById(int id)
+    {
+        var filter = Builders<Todo>.Filter.Eq(todo => todo.Id, id);
+        var result = await _todoCollection.DeleteOneAsync(filter);
+        return result.DeletedCount > 0;
     }
 }
